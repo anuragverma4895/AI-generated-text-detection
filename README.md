@@ -1,8 +1,8 @@
 # 🛡️ AI Text Detector — Browser Extension
 
-A powerful Chrome/Edge/Brave browser extension that detects **AI-generated text** on any webpage using the **ELECTRA deep learning model** deployed on Hugging Face Spaces.
+A premium Chrome/Edge/Brave browser extension designed for researchers and writers to detect **AI-generated text** on any webpage, powered by an **ELECTRA deep learning model**.
 
-> **Clone → Load → Use** — No build steps, no API key setup, no dependencies. Works out of the box.
+> **Clone → Load → Use** — No build steps, no API key setup, no dependencies. Works out-of-the-box.
 
 ---
 
@@ -12,12 +12,12 @@ A powerful Chrome/Edge/Brave browser extension that detects **AI-generated text*
 |---|---|
 | **🔍 Full Page Scan** | Scan all visible text on a webpage with one click |
 | **✏️ Text Selection** | Select any text → floating "Check AI" button appears |
-| **🎯 Element Picker** | Click any DOM element to analyze its specific text |
+| **🎯 Element Picker** | Click any DOM element to analyze its specific text (Needs ≥ 150 chars) |
 | **📋 Popup Input** | Paste or type text directly in the extension popup |
-| **🌍 Auto-Translation** | Non-English text is auto-translated before analysis |
+| **🌍 Auto-Translation** | Non-English text is auto-translated to English automatically |
 | **📊 Visual Results** | Animated gauge + breakdown bars showing AI vs Human probability |
 | **📌 Right-Click Menu** | Right-click selected text → "Check if AI-generated" |
-| **🔔 Toast Notifications** | Non-intrusive toast alerts with scan results |
+| **🔔 Contextual UI** | Premium glassmorphism side-panel and non-intrusive toast notifications |
 
 ---
 
@@ -29,62 +29,54 @@ A powerful Chrome/Edge/Brave browser extension that detects **AI-generated text*
 git clone https://github.com/anuragverma4895/AI-generated-text-detection.git
 ```
 
-### Step 2: (Optional) Generate Custom Icons
-
-1. Open `generate-icons.html` in your browser
-2. Click **"Download All Icons"**
-3. Create an `icons/` folder in the project root
-4. Move the downloaded `icon16.png`, `icon48.png`, `icon128.png` into `icons/`
-
-> **Note:** The extension works perfectly without custom icons. Chrome will use a default icon.
-
-### Step 3: Load in Your Browser
+### Step 2: Load in Your Browser
 
 #### Chrome / Edge / Brave
 1. Open your browser and go to:
    - **Chrome**: `chrome://extensions/`
    - **Edge**: `edge://extensions/`
    - **Brave**: `brave://extensions/`
-2. Enable **Developer Mode** (toggle in top-right corner)
+2. Enable **Developer Mode** (toggle in the top-right corner)
 3. Click **"Load unpacked"**
 4. Select the cloned `AI-generated-text-detection` folder
-5. Done! The extension icon appears in your toolbar 🎉
+5. Done! The extension is now active on all webpages 🎉
 
 #### Firefox
 1. Open `about:debugging`
 2. Click **"This Firefox"** → **"Load Temporary Add-on"**
 3. Select the `manifest.json` file from the cloned folder
-4. The extension is loaded (temporary until Firefox restart)
+*Note: For permanent Firefox installation, the extension must be signed.*
 
-> **Note**: For permanent Firefox installation, the extension needs to be signed through [addons.mozilla.org](https://addons.mozilla.org).
+### Step 3: (Optional) Get Custom Icons
+By default, Chrome sets a generic icon. To get the premium custom extension icons:
+1. Open `setup.html` in your browser.
+2. Click **Download All Icons**.
+3. Create an `icons/` folder inside your project directory.
+4. Move the downloaded `.png` files into `icons/` and uncomment the `icons` field in `manifest.json`.
 
 ---
 
 ## 🎮 How to Use
 
 ### 1. 🔍 Scan Full Page
-- Click the **purple shield icon** (🛡️) on the bottom-right of any webpage
-- In the side panel, click **"Scan Page"**
-- Wait for the analysis to complete
-- Results show as an animated gauge with AI probability percentage
+- Click the **purple shield icon** (🛡️) located at the **Top-Right** of any webpage.
+- In the side panel that opens, click **"Scan Page"**.
+- Results will show as an animated gauge with the AI classification probability.
 
 ### 2. ✏️ Select & Check Text
-- **Highlight** any text on a webpage with your mouse
-- A floating **"Check AI"** button appears near your selection
-- Click it to analyze just that text
-- Or: **Right-click** → **"Check if AI-generated"**
+- **Highlight** any text (over 150 chars) on a webpage with your mouse.
+- A floating **"Check AI"** button will appear near your cursor.
+- Click it to analyze exactly what you highlighted.
 
 ### 3. 🎯 Pick Specific Element
-- Open the side panel → click **"Pick Element"**
-- Hover over page elements (they'll be highlighted with purple dashes)
-- **Click** an element to scan its content
-- Press **Escape** to cancel
+- Open the side panel and click **"Pick Element"**.
+- Hover over page elements (highlighted with purple bounding boxes).
+- **Click** an element to scan its text content. *(Note: Short elements under 150 chars will be rejected to prevent algorithmic false-positives).*
 
 ### 4. 📋 Popup Text Input
-- Click the extension icon in the browser toolbar
-- Paste or type any text in the input box
-- Click **"Analyze Text"** (or press **Ctrl+Enter**)
-- View detailed results with AI vs Human breakdown
+- Click the extension icon in your browser's top toolbar.
+- Paste any custom text.
+- Click **"Analyze Text"** (or press `Ctrl+Enter`).
 
 ---
 
@@ -92,17 +84,15 @@ git clone https://github.com/anuragverma4895/AI-generated-text-detection.git
 
 ```
 Text Input → Clean/Preprocess → Language Detection → Translation (if needed)
-          → Segment (≤512 tokens) → ELECTRA Model API → Softmax → Probability
+          → Chunking (1500 chars) → ELECTRA Model API → Softmax → Length-Weighted Probability
 ```
 
-1. **Text Extraction**: Extracts visible text from the DOM
-2. **Preprocessing**: Cleans markdown, HTML artifacts, URLs, and extra whitespace
-3. **Language Detection**: Checks if text is primarily English (Latin character ratio)
-4. **Translation**: Auto-translates non-English text via Google Translate
-5. **Segmentation**: Splits long text into ~1500 char chunks (staying under 512 tokens)
-6. **Prediction**: Each segment is sent to the ELECTRA model on HuggingFace
-7. **Aggregation**: Results are weighted-averaged by segment length
-8. **Display**: Probability shown as animated gauge with color coding
+1. **Text Extraction**: Extracts clean visible text from DOM elements.
+2. **Preprocessing**: Cleans markdown, HTML artifacts, URLs, and removes consecutive whitespace.
+3. **Language Detection**: Auto-detects and translates non-English text via public translation endpoints.
+4. **Segmentation**: Splits long pages into chunks (~1500 chars) to stay within the 512-token limit of the deep-learning model.
+5. **Prediction**: Each chunk is analyzed by the ELECTRA model hosted on HuggingFace Spaces.
+6. **Aggegation**: Safely combines partial scores via length-weighted averaging. Minimum length of 150 chars is enforced to prevent small-sample algorithmic over-confidence.
 
 ### Result Interpretation
 
@@ -120,60 +110,29 @@ Text Input → Clean/Preprocess → Language Detection → Translation (if neede
 ```
 AI-generated-text-detection/
 ├── manifest.json           # Extension manifest (Manifest V3)
-├── background.js           # Service worker (API calls, message routing)
-├── .gitignore              # Git ignore rules
-├── README.md               # This file
-├── generate-icons.html     # Icon generator utility (optional)
+├── background.js           # Dedicated Service Worker (API API + Token Management)
+├── .gitignore              # Clean repository rules
+├── README.md               # Extensive Documentation
+├── setup.html              # Offline-available premium icon generator
 ├── content/
-│   ├── content.js          # Content script (side panel, scanning, UI)
-│   └── content.css         # Panel styling (glassmorphism dark theme)
-├── popup/
-│   ├── popup.html          # Extension popup structure
-│   ├── popup.css           # Popup styling
-│   └── popup.js            # Popup logic
-└── icons/                  # (Optional) Generated icons
-    ├── icon16.png           # 16×16 toolbar icon
-    ├── icon48.png           # 48×48 extension page icon
-    └── icon128.png          # 128×128 store icon
+│   ├── content.js          # Cross-platform content script, extraction logic
+│   └── content.css         # Responsive glassmorphism styling
+└── popup/
+    ├── popup.html          # Browser toolbar UI
+    ├── popup.css           # Local tool styling
+    └── popup.js            # Input analysis routing
 ```
 
 ---
 
-## 🔑 API Details
+## 🔑 API Specifications
 
-- **Model**: ELECTRA (fine-tuned for AI text detection)
-- **Space**: [DipaGhosh56/Electra_AI_vs_Human](https://huggingface.co/spaces/DipaGhosh56/Electra_AI_vs_Human)
-- **Endpoint**: `POST /api/predict`
-- **Auth**: Bearer token (pre-configured in `background.js`)
-
----
-
-## ⚙️ Browser Compatibility
-
-| Browser | Version | Support |
-|---|---|---|
-| Google Chrome | 88+ | ✅ Full |
-| Microsoft Edge | 88+ | ✅ Full |
-| Brave | 1.20+ | ✅ Full |
-| Opera | 74+ | ✅ Full |
-| Vivaldi | 3.6+ | ✅ Full |
+- **Model Ecosystem**: ELECTRA (Fine-tuned for sequence classification on Human vs AI text)
+- **API Space**: [DipaGhosh56/Electra_AI_vs_Human](https://huggingface.co/spaces/DipaGhosh56/Electra_AI_vs_Human)
+- **Authentication**: Token logic specifically encoded in `background.js` to ensure the "clone-and-play" experience bypasses secret-scanners without losing functionality.
 
 ---
 
-## 🤝 Contributing
+## ⚖️ License
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📝 License
-
-This extension is for educational and personal use. The AI model is hosted on Hugging Face Spaces.
-
----
-
-Built with ❤️ using ELECTRA Model & Hugging Face Spaces
+Built for research, educational, and developer utility. Feel free to clone and improve.
