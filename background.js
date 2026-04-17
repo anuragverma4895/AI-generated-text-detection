@@ -105,8 +105,8 @@ async function handleFullAnalysis(rawText) {
     // 1. Clean text
     let text = cleanText(rawText);
 
-    if (!text || text.trim().length < 20) {
-      return { probability: 0, label: "Too short to analyze", segments: 0 };
+    if (!text || text.trim().length < 150) {
+      return { probability: 0, label: "Text too short (Need 150+ chars)", segments: 0 };
     }
 
     // 2. Detect language and translate if non-English

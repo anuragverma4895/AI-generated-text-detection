@@ -195,8 +195,8 @@
     stopPicking();
     // Reset position for next open
     panel.style.left = "";
-    panel.style.right = "24px";
-    panel.style.top = "60px";
+    panel.style.right = "20px";
+    panel.style.top = "85px";
   }
 
   toggleBtn.addEventListener("click", openPanel);
@@ -300,8 +300,8 @@
 
   // ── Analysis ──
   async function analyzeText(text, source) {
-    if (!text || text.trim().length < 20) {
-      setStatus("Text too short (need 20+ chars)", false);
+    if (!text || text.trim().length < 150) {
+      setStatus("Text too short (Need 150+ chars for accuracy)", false);
       return;
     }
 

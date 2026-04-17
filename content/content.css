@@ -18,8 +18,8 @@
 /* ── Floating Toggle Button ── */
 #ai-detector-toggle {
   position: fixed;
-  top: 24px;
-  right: 24px;
+  top: 20px;
+  right: 20px;
   z-index: 2147483647;
   width: 54px;
   height: 54px;
@@ -76,8 +76,8 @@
 /* ── Draggable Side Panel ── */
 #ai-detector-panel {
   position: fixed;
-  top: 60px;
-  right: 24px;
+  top: 85px;
+  right: 20px;
   z-index: 2147483646;
   width: 340px;
   max-height: 85vh;
