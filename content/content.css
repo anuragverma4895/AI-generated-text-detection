@@ -18,7 +18,7 @@
 /* ── Floating Toggle Button ── */
 #ai-detector-toggle {
   position: fixed;
-  bottom: 24px;
+  top: 24px;
   right: 24px;
   z-index: 2147483647;
   width: 54px;
