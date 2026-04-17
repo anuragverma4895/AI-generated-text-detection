@@ -121,13 +121,20 @@ document.addEventListener("DOMContentLoaded", () => {
     gaugePercent.style.color = color;
 
     // Verdict
+    const ICONS = {
+      ai: `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align:-0.15em; margin-right:4px;"><path d="M12,2a2,2 0 0,1 2,2c0,0.74 -0.4,1.39 -1,1.73V7h1a3,3 0 0,1 3,3v2h2a1,1 0 0,1 1,1v4a1,1 0 0,1 -1,1h-2v2a3,3 0 0,1 -3,3H8a3,3 0 0,1 -3,-3v-2H3a1,1 0 0,1 -1,-1v-4a1,1 0 0,1 1,-1h2v-2a3,3 0 0,1 3,-3h1V5.73C7.4,5.39 7,4.74 7,4a2,2 0 0,1 2,-2h3M15,13.5a1.5,1.5 0 0,0 -1.5,1.5a1.5,1.5 0 0,0 1.5,1.5a1.5,1.5 0 0,0 1.5,-1.5a1.5,1.5 0 0,0 -1.5,-1.5M9,13.5a1.5,1.5 0 0,0 -1.5,1.5a1.5,1.5 0 0,0 1.5,1.5a1.5,1.5 0 0,0 1.5,-1.5a1.5,1.5 0 0,0 -1.5,-1.5Z"/></svg>`,
+      warning: `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align:-0.15em; margin-right:4px;"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`,
+      mixed: `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align:-0.15em; margin-right:4px;"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>`,
+      human: `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align:-0.15em; margin-right:4px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`
+    };
+    
     let verdictText;
-    if (prob > 75) verdictText = "🤖 Likely AI-Generated";
-    else if (prob > 50) verdictText = "⚠️ Possibly AI-Generated";
-    else if (prob > 30) verdictText = "🤔 Mixed / Uncertain";
-    else verdictText = "✍️ Likely Human-Written";
+    if (prob > 75) verdictText = ICONS.ai + " Likely AI-Generated";
+    else if (prob > 50) verdictText = ICONS.warning + " Possibly AI-Generated";
+    else if (prob > 30) verdictText = ICONS.mixed + " Mixed / Uncertain";
+    else verdictText = ICONS.human + " Likely Human-Written";
 
-    verdict.textContent = verdictText;
+    verdict.innerHTML = verdictText;
     verdict.style.color = color;
 
     // Segments info

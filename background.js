@@ -12,7 +12,7 @@ const TRANSLATE_API = "https://translate.googleapis.com/translate_a/single";
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "ai-detect-selection",
-    title: "🔍 Check if AI-generated",
+    title: "Check if AI-generated",
     contexts: ["selection"]
   });
 });

@@ -13,7 +13,12 @@
   const ICONS = {
     shield: `<svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>`,
     scan: `<svg viewBox="0 0 24 24"><path d="M3 5v4h2V5h4V3H5C3.9 3 3 3.9 3 5zm2 10H3v4c0 1.1.9 2 2 2h4v-2H5v-4zm14 4h-4v2h4c1.1 0 2-.9 2-2v-4h-2v4zm0-16h-4v2h4v4h2V5c0-1.1-.9-2-2-2zM12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/></svg>`,
-    cursor: `<svg viewBox="0 0 24 24"><path d="M13.64 21.97C13.14 22.21 12.54 22 12.31 21.5L10.13 16.76l-4.76 4.76c-.2.2-.51.2-.71 0l-1.41-1.41c-.2-.2-.2-.51 0-.71l4.76-4.76L3.5 12.31c-.5-.23-.71-.83-.47-1.33.1-.21.28-.39.47-.47l17-7c.42-.18.9.02 1.08.44.07.17.07.35 0 .52l-7 17c-.1.24-.28.42-.47.5z"/></svg>`
+    cursor: `<svg viewBox="0 0 24 24"><path d="M13.64 21.97C13.14 22.21 12.54 22 12.31 21.5L10.13 16.76l-4.76 4.76c-.2.2-.51.2-.71 0l-1.41-1.41c-.2-.2-.2-.51 0-.71l4.76-4.76L3.5 12.31c-.5-.23-.71-.83-.47-1.33.1-.21.28-.39.47-.47l17-7c.42-.18.9.02 1.08.44.07.17.07.35 0 .52l-7 17c-.1.24-.28.42-.47.5z"/></svg>`,
+    ai: `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align:-0.15em; margin-right:4px;"><path d="M12,2a2,2 0 0,1 2,2c0,0.74 -0.4,1.39 -1,1.73V7h1a3,3 0 0,1 3,3v2h2a1,1 0 0,1 1,1v4a1,1 0 0,1 -1,1h-2v2a3,3 0 0,1 -3,3H8a3,3 0 0,1 -3,-3v-2H3a1,1 0 0,1 -1,-1v-4a1,1 0 0,1 1,-1h2v-2a3,3 0 0,1 3,-3h1V5.73C7.4,5.39 7,4.74 7,4a2,2 0 0,1 2,-2h3M15,13.5a1.5,1.5 0 0,0 -1.5,1.5a1.5,1.5 0 0,0 1.5,1.5a1.5,1.5 0 0,0 1.5,-1.5a1.5,1.5 0 0,0 -1.5,-1.5M9,13.5a1.5,1.5 0 0,0 -1.5,1.5a1.5,1.5 0 0,0 1.5,1.5a1.5,1.5 0 0,0 1.5,-1.5a1.5,1.5 0 0,0 -1.5,-1.5Z"/></svg>`,
+    human: `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align:-0.15em; margin-right:4px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`,
+    warning: `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align:-0.15em; margin-right:4px;"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`,
+    mixed: `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align:-0.15em; margin-right:4px;"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>`,
+    chart: `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align:-0.15em; margin-right:4px;"><path d="M3 3v18h18v-2H5V3H3zm4 14h3v-6H7v6zm5 0h3V7h-3v10zm5 0h3v-4h-3v4z"/></svg>`
   };
 
   // ── Root ──
@@ -32,7 +37,7 @@
   const toast = document.createElement("div");
   toast.id = "ai-detector-toast";
   toast.innerHTML = `
-    <div class="toast-icon" style="background:rgba(124,58,237,0.15)">🛡️</div>
+    <div class="toast-icon" style="background:rgba(124,58,237,0.15)">${ICONS.shield}</div>
     <div class="toast-content">
       <div class="toast-title">AI Detector Active</div>
       <div class="toast-subtitle">Click shield to scan</div>
@@ -90,15 +95,15 @@
         <div class="ai-status" id="ai-status"></div>
 
         <div class="ai-breakdown" id="ai-breakdown" style="display:none">
-          <div class="ai-breakdown-title">📊 Confidence Breakdown</div>
+          <div class="ai-breakdown-title">${ICONS.chart} Confidence Breakdown</div>
           <div class="ai-bar-group">
             <div class="ai-bar-item">
-              <span class="bar-label">🤖 AI</span>
+              <span class="bar-label">${ICONS.ai} AI</span>
               <div class="ai-bar-track"><div class="ai-bar-fill ai-fill" id="ai-bar-ai"></div></div>
               <span class="bar-value" id="ai-bar-ai-val">0%</span>
             </div>
             <div class="ai-bar-item">
-              <span class="bar-label">✍️ Human</span>
+              <span class="bar-label">${ICONS.human} Human</span>
               <div class="ai-bar-track"><div class="ai-bar-fill human-fill" id="ai-bar-human"></div></div>
               <span class="bar-value" id="ai-bar-human-val">0%</span>
             </div>
@@ -229,11 +234,11 @@
     els.barHumanVal.style.color = "#22c55e";
 
     let label;
-    if (pct > 75) label = "🤖 Likely AI-Generated";
-    else if (pct > 50) label = "⚠️ Possibly AI-Generated";
-    else if (pct > 30) label = "🤔 Mixed / Uncertain";
-    else label = "✍️ Likely Human-Written";
-    els.gaugeLabel.textContent = label;
+    if (pct > 75) label = ICONS.ai + " Likely AI-Generated";
+    else if (pct > 50) label = ICONS.warning + " Possibly AI-Generated";
+    else if (pct > 30) label = ICONS.mixed + " Mixed / Uncertain";
+    else label = ICONS.human + " Likely Human-Written";
+    els.gaugeLabel.innerHTML = label;
     els.gaugeLabel.style.color = color;
 
     els.resultCard.classList.add("has-result");
@@ -441,12 +446,12 @@
     clearTimeout(toastTimer);
     const p = probability.toFixed(1);
     let icon, title, bg;
-    if (probability > 75) { icon = "🤖"; title = p + "% AI-Generated"; bg = "rgba(239,68,68,0.12)"; }
-    else if (probability > 50) { icon = "⚠️"; title = p + "% Possibly AI"; bg = "rgba(245,158,11,0.12)"; }
-    else if (probability > 30) { icon = "🤔"; title = p + "% Uncertain"; bg = "rgba(234,179,8,0.12)"; }
-    else { icon = "✅"; title = p + "% Human"; bg = "rgba(34,197,94,0.12)"; }
+    if (probability > 75) { icon = ICONS.ai; title = p + "% AI-Generated"; bg = "rgba(239,68,68,0.12)"; }
+    else if (probability > 50) { icon = ICONS.warning; title = p + "% Possibly AI"; bg = "rgba(245,158,11,0.12)"; }
+    else if (probability > 30) { icon = ICONS.mixed; title = p + "% Uncertain"; bg = "rgba(234,179,8,0.12)"; }
+    else { icon = ICONS.human; title = p + "% Human"; bg = "rgba(34,197,94,0.12)"; }
 
-    toast.querySelector(".toast-icon").textContent = icon;
+    toast.querySelector(".toast-icon").innerHTML = icon;
     toast.querySelector(".toast-icon").style.background = bg;
     toast.querySelector(".toast-title").textContent = title;
     toast.querySelector(".toast-subtitle").textContent = source;
@@ -467,7 +472,7 @@
   // ── Initial toast ──
   setTimeout(() => {
     if ((document.body.innerText || "").trim().length > 200) {
-      toast.querySelector(".toast-icon").textContent = "🛡️";
+      toast.querySelector(".toast-icon").innerHTML = ICONS.shield;
       toast.querySelector(".toast-icon").style.background = "rgba(124,58,237,0.12)";
       toast.querySelector(".toast-title").textContent = "AI Detector Active";
       toast.querySelector(".toast-subtitle").textContent = "Click the shield to scan";
