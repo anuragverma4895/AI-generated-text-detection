@@ -1,4 +1,4 @@
-# 🛡️ AI Text Detector — Browser Extension
+# AI Text Detector — Browser Extension
 
 A premium Chrome/Edge/Brave browser extension designed for researchers and writers to detect **AI-generated text** on any webpage, powered by an **ELECTRA deep learning model**.
 
@@ -6,22 +6,22 @@ A premium Chrome/Edge/Brave browser extension designed for researchers and write
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Description |
 |---|---|
-| **🔍 Full Page Scan** | Scan all visible text on a webpage with one click |
-| **✏️ Text Selection** | Select any text → floating "Check AI" button appears |
-| **🎯 Element Picker** | Click any DOM element to analyze its specific text (Needs ≥ 150 chars) |
-| **📋 Popup Input** | Paste or type text directly in the extension popup |
-| **🌍 Auto-Translation** | Non-English text is auto-translated to English automatically |
-| **📊 Visual Results** | Animated gauge + breakdown bars showing AI vs Human probability |
-| **📌 Right-Click Menu** | Right-click selected text → "Check if AI-generated" |
-| **🔔 Contextual UI** | Premium glassmorphism side-panel and non-intrusive toast notifications |
+| **Full Page Scan** | Scan all visible text on a webpage with one click |
+| **Text Selection** | Select any text → floating "Check AI" button appears |
+| **Element Picker** | Click any DOM element to analyze its specific text (Needs >= 150 chars) |
+| **Popup Input** | Paste or type text directly in the extension popup |
+| **Auto-Translation** | Non-English text is auto-translated to English automatically |
+| **Visual Results** | Animated gauge + breakdown bars showing AI vs Human probability |
+| **Right-Click Menu** | Right-click selected text → "Check if AI-generated" |
+| **Contextual UI** | Premium glassmorphism side-panel and non-intrusive toast notifications |
 
 ---
 
-## 🚀 Quick Start (Clone & Use)
+## Quick Start (Clone & Use)
 
 ### Step 1: Clone the Repository
 
@@ -39,7 +39,7 @@ git clone https://github.com/anuragverma4895/AI-generated-text-detection.git
 2. Enable **Developer Mode** (toggle in the top-right corner)
 3. Click **"Load unpacked"**
 4. Select the cloned `AI-generated-text-detection` folder
-5. Done! The extension is now active on all webpages 🎉
+5. Done! The extension is now active on all webpages.
 
 #### Firefox
 1. Open `about:debugging`
@@ -56,31 +56,31 @@ By default, Chrome sets a generic icon. To get the premium custom extension icon
 
 ---
 
-## 🎮 How to Use
+## How to Use
 
-### 1. 🔍 Scan Full Page
-- Click the **purple shield icon** (🛡️) located at the **Top-Right** of any webpage.
+### 1. Scan Full Page
+- Click the **purple shield icon** located at the **Top-Right** of any webpage.
 - In the side panel that opens, click **"Scan Page"**.
 - Results will show as an animated gauge with the AI classification probability.
 
-### 2. ✏️ Select & Check Text
+### 2. Select & Check Text
 - **Highlight** any text (over 150 chars) on a webpage with your mouse.
 - A floating **"Check AI"** button will appear near your cursor.
 - Click it to analyze exactly what you highlighted.
 
-### 3. 🎯 Pick Specific Element
+### 3. Pick Specific Element
 - Open the side panel and click **"Pick Element"**.
 - Hover over page elements (highlighted with purple bounding boxes).
 - **Click** an element to scan its text content. *(Note: Short elements under 150 chars will be rejected to prevent algorithmic false-positives).*
 
-### 4. 📋 Popup Text Input
+### 4. Popup Text Input
 - Click the extension icon in your browser's top toolbar.
 - Paste any custom text.
 - Click **"Analyze Text"** (or press `Ctrl+Enter`).
 
 ---
 
-## 🧠 How It Works
+## How It Works
 
 ```
 Text Input → Clean/Preprocess → Language Detection → Translation (if needed)
@@ -98,14 +98,14 @@ Text Input → Clean/Preprocess → Language Detection → Translation (if neede
 
 | Probability | Color | Meaning |
 |---|---|---|
-| > 75% | 🔴 Red | Likely AI-Generated |
-| 50–75% | 🟡 Orange | Possibly AI-Generated |
-| 30–50% | 🟡 Yellow | Mixed / Uncertain |
-| < 30% | 🟢 Green | Likely Human-Written |
+| > 75% | Red | Likely AI-Generated |
+| 50-75% | Orange | Possibly AI-Generated |
+| 30-50% | Yellow | Mixed / Uncertain |
+| < 30% | Green | Likely Human-Written |
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 AI-generated-text-detection/
@@ -125,7 +125,7 @@ AI-generated-text-detection/
 
 ---
 
-## 🔑 API Specifications
+## API Specifications
 
 - **Model Ecosystem**: ELECTRA (Fine-tuned for sequence classification on Human vs AI text)
 - **API Space**: [DipaGhosh56/Electra_AI_vs_Human](https://huggingface.co/spaces/DipaGhosh56/Electra_AI_vs_Human)
@@ -133,6 +133,6 @@ AI-generated-text-detection/
 
 ---
 
-## ⚖️ License
+## License
 
 Built for research, educational, and developer utility. Feel free to clone and improve.
