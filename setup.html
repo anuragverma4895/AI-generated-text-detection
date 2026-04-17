@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🛡️ AI Text Detector — One-Click Setup</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', -apple-system, system-ui, sans-serif;
+      background: #0a0e1a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      max-width: 600px;
+      padding: 48px 40px;
+      background: linear-gradient(160deg, rgba(17,12,34,0.96), rgba(10,15,30,0.97));
+      border-radius: 24px;
+      border: 1px solid rgba(124,58,237,0.2);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 80px rgba(124,58,237,0.06);
+      text-align: center;
+    }
+    .logo {
+      width: 72px; height: 72px; margin: 0 auto 20px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #7c3aed, #3b82f6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 900; color: white;
+      box-shadow: 0 8px 32px rgba(124,58,237,0.4);
+    }
+    h1 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    .subtitle { color: #64748b; font-size: 14px; margin-bottom: 32px; }
+    .icons-preview {
+      display: flex; gap: 24px; justify-content: center; align-items: flex-end;
+      margin-bottom: 32px;
+    }
+    .icon-group { text-align: center; }
+    .icon-group canvas { border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); }
+    .icon-group span { display: block; margin-top: 6px; font-size: 11px; color: #475569; }
+    .btn-primary {
+      padding: 14px 36px;
+      background: linear-gradient(135deg, #7c3aed, #6366f1, #3b82f6);
+      background-size: 200% 200%;
+      animation: gradient-shift 4s ease infinite;
+      border: none; border-radius: 14px;
+      color: white; font-size: 15px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+      transition: all 0.3s;
+      margin-bottom: 16px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(124,58,237,0.55); }
+    @keyframes gradient-shift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    .status {
+      font-size: 13px; color: #22c55e; margin-top: 12px;
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .status.visible { opacity: 1; }
+    .steps {
+      text-align: left;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .steps h3 { font-size: 13px; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+    .steps ol { padding-left: 20px; }
+    .steps li {
+      font-size: 13px; color: #94a3b8; margin-bottom: 10px; line-height: 1.7;
+    }
+    .steps code {
+      background: rgba(124,58,237,0.12); padding: 2px 8px; border-radius: 5px;
+      font-size: 12px; color: #c4b5fd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">AI</div>
+    <h1>AI Text Detector Setup</h1>
+    <p class="subtitle">Generate extension icons with one click</p>
+
+    <div class="icons-preview">
+      <div class="icon-group">
+        <canvas id="c128" width="128" height="128"></canvas>
+        <span>128×128</span>
+      </div>
+      <div class="icon-group">
+        <canvas id="c48" width="48" height="48"></canvas>
+        <span>48×48</span>
+      </div>
+      <div class="icon-group">
+        <canvas id="c16" width="16" height="16"></canvas>
+        <span>16×16</span>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="downloadAll()">⬇️ Download All Icons</button>
+    <div class="status" id="status">✅ Icons downloaded! Place them in the <strong>icons/</strong> folder.</div>
+
+    <div class="steps">
+      <h3>📋 After Downloading</h3>
+      <ol>
+        <li>Create an <code>icons/</code> folder in the extension directory (if it doesn't exist)</li>
+        <li>Move <code>icon16.png</code>, <code>icon48.png</code>, <code>icon128.png</code> into it</li>
+        <li>Go to <code>chrome://extensions/</code> → Enable <strong>Developer Mode</strong></li>
+        <li>Click <strong>"Load unpacked"</strong> → Select the extension folder</li>
+        <li>You're all set! 🎉</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    function drawIcon(canvas, size) {
+      const ctx = canvas.getContext("2d");
+      const s = size;
+
+      // Background gradient
+      const bgGrad = ctx.createLinearGradient(0, 0, s, s);
+      bgGrad.addColorStop(0, "#7c3aed");
+      bgGrad.addColorStop(1, "#3b82f6");
+
+      // Rounded rectangle background
+      const r = s * 0.2;
+      ctx.beginPath();
+      ctx.moveTo(r, 0);
+      ctx.lineTo(s - r, 0);
+      ctx.quadraticCurveTo(s, 0, s, r);
+      ctx.lineTo(s, s - r);
+      ctx.quadraticCurveTo(s, s, s - r, s);
+      ctx.lineTo(r, s);
+      ctx.quadraticCurveTo(0, s, 0, s - r);
+      ctx.lineTo(0, r);
+      ctx.quadraticCurveTo(0, 0, r, 0);
+      ctx.closePath();
+      ctx.fillStyle = bgGrad;
+      ctx.fill();
+
+      // Shield shape
+      ctx.save();
+      ctx.translate(s / 2, s * 0.48);
+      const shieldW = s * 0.36;
+      const shieldH = s * 0.44;
+      ctx.beginPath();
+      ctx.moveTo(0, -shieldH / 2);
+      ctx.quadraticCurveTo(shieldW / 2, -shieldH / 2.5, shieldW / 2, -shieldH / 6);
+      ctx.lineTo(shieldW / 2, shieldH / 6);
+      ctx.quadraticCurveTo(shieldW / 2, shieldH / 2.5, 0, shieldH / 2);
+      ctx.quadraticCurveTo(-shieldW / 2, shieldH / 2.5, -shieldW / 2, shieldH / 6);
+      ctx.lineTo(-shieldW / 2, -shieldH / 6);
+      ctx.quadraticCurveTo(-shieldW / 2, -shieldH / 2.5, 0, -shieldH / 2);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+      ctx.lineWidth = Math.max(1, s * 0.015);
+      ctx.stroke();
+
+      // Checkmark inside shield
+      ctx.beginPath();
+      const checkSize = s * 0.12;
+      ctx.moveTo(-checkSize, 0);
+      ctx.lineTo(-checkSize / 3, checkSize * 0.7);
+      ctx.lineTo(checkSize, -checkSize * 0.6);
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = Math.max(1.5, s * 0.025);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.stroke();
+      ctx.restore();
+
+      // "AI" text at top
+      ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+      ctx.font = `bold ${Math.max(6, s * 0.14)}px system-ui`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText("AI", s / 2, s * 0.08);
+
+      // Subtle glow
+      const glowGrad = ctx.createRadialGradient(s * 0.4, s * 0.3, 0, s * 0.4, s * 0.3, s * 0.5);
+      glowGrad.addColorStop(0, "rgba(167, 139, 250, 0.15)");
+      glowGrad.addColorStop(1, "transparent");
+      ctx.fillStyle = glowGrad;
+      ctx.fillRect(0, 0, s, s);
+    }
+
+    // Draw all icons on page load
+    [128, 48, 16].forEach(size => {
+      drawIcon(document.getElementById("c" + size), size);
+    });
+
+    function downloadAll() {
+      [128, 48, 16].forEach(size => {
+        const canvas = document.getElementById("c" + size);
+        const link = document.createElement("a");
+        link.download = `icon${size}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+      
+      const status = document.getElementById("status");
+      status.classList.add("visible");
+      setTimeout(() => status.classList.remove("visible"), 5000);
+    }
+  </script>
+</body>
+</html>
