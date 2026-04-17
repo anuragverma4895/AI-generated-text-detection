@@ -164,6 +164,66 @@ function softmax(logits) {
   return probs[1]; // Index 1 = AI class
 }
 
+function getPrediction(logits) {
+  let [logit0, logit1] = logits;
+  let exps = [Math.exp(logit0), Math.exp(logit1)];
+  let sum = exps[0] + exps[1];
+  let probHuman = (exps[0] / sum) * 100;
+  let probAI = (exps[1] / sum) * 100;
+
+  return { pctAI: probAI.toFixed(1), pctHuman: probHuman.toFixed(1), winner: probAI > probHuman ? "AI" : "Human" };
+}
+
+// ── DYNAMIC PREMIUM SHIELD ICON GENERATOR ──
+// This fixes the toolbar icon to strictly show the purple shield+check logo directly.
+async function setPremiumToolbarIcon() {
+  try {
+    const c128 = new OffscreenCanvas(128, 128);
+    const ctx = c128.getContext("2d");
+
+    // Premium Purple Gradient
+    const grad = ctx.createLinearGradient(0, 0, 128, 128);
+    grad.addColorStop(0, "#7c3aed");
+    grad.addColorStop(1, "#3b82f6");
+    ctx.fillStyle = grad;
+    
+    // Draw smooth rounded rect (radius 24)
+    ctx.beginPath();
+    ctx.roundRect(0, 0, 128, 128, 28);
+    ctx.fill();
+
+    // Draw White Shield with Checkmark (Centered & Scaled)
+    ctx.save();
+    ctx.translate(24, 24); // center an 80x80 shield in 128x128
+    ctx.scale(80 / 24, 80 / 24); // scale up the 24x24 SVG path
+    
+    const svgPath = new Path2D("M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z");
+    ctx.fillStyle = "white";
+    ctx.fill(svgPath);
+    ctx.restore();
+
+    // Setup downscaled canvases for perfect crispness on smaller monitors
+    const c48 = new OffscreenCanvas(48, 48);
+    c48.getContext("2d").drawImage(c128, 0, 0, 48, 48);
+
+    const c16 = new OffscreenCanvas(16, 16);
+    c16.getContext("2d").drawImage(c128, 0, 0, 16, 16);
+
+    const imageDataRaw = {
+      "16": c16.getContext("2d").getImageData(0, 0, 16, 16),
+      "48": c48.getContext("2d").getImageData(0, 0, 48, 48),
+      "128": ctx.getImageData(0, 0, 128, 128)
+    };
+
+    chrome.action.setIcon({ imageData: imageDataRaw });
+  } catch (err) {
+    console.error("Icon generator Error:", err);
+  }
+}
+
+// Automatically apply the stunning logo on extension load
+setPremiumToolbarIcon();
+
 // Clean text (JS equivalent of the Python clean_text function)
 function cleanText(text) {
   text = text.replace(/<<.*?>>/g, "");

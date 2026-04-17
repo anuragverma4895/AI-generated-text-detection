@@ -35,21 +35,21 @@ function createFallbackIcons() {
   // Generate minimal 1-pixel colored PNG files as placeholders
   // These are valid PNGs that Chrome will accept
   const sizes = [16, 48, 128];
-  
+
   sizes.forEach(size => {
     const pngData = createMinimalPNG(size);
     const iconPath = path.join(__dirname, 'icons', `icon${size}.png`);
-    
+
     // Ensure icons directory exists
     const iconsDir = path.join(__dirname, 'icons');
     if (!fs.existsSync(iconsDir)) {
       fs.mkdirSync(iconsDir, { recursive: true });
     }
-    
+
     fs.writeFileSync(iconPath, pngData);
     console.log(`Created placeholder icon: ${iconPath}`);
   });
-  
+
   console.log('');
   console.log('Placeholder icons created! Extension will work but icons will be basic.');
   console.log('For better icons, open generate-icons.html in your browser.');
@@ -58,18 +58,18 @@ function createFallbackIcons() {
 function createMinimalPNG(size) {
   // Create a proper PNG file with a purple gradient-like solid color
   // This is a valid PNG that browsers will display
-  
+
   // PNG structure: Signature + IHDR + IDAT + IEND
   const width = size;
   const height = size;
-  
+
   // Raw pixel data (RGBA)
   const rawData = Buffer.alloc((width * 4 + 1) * height);
-  
+
   for (let y = 0; y < height; y++) {
     const rowStart = y * (width * 4 + 1);
     rawData[rowStart] = 0; // Filter: None
-    
+
     for (let x = 0; x < width; x++) {
       const px = rowStart + 1 + x * 4;
       // Purple gradient: from #7c3aed to #3b82f6
@@ -77,14 +77,13 @@ function createMinimalPNG(size) {
       const r = Math.round(124 + (59 - 124) * t);
       const g = Math.round(58 + (130 - 58) * t);
       const b = Math.round(237 + (246 - 237) * t);
-      
+
       // Apply rounded corner mask
       const cx = x - width / 2;
       const cy = y - height / 2;
       const cornerR = width * 0.2;
       let alpha = 255;
-      
-      // Simple rounded corners
+
       const dx = Math.abs(cx) - (width / 2 - cornerR);
       const dy = Math.abs(cy) - (height / 2 - cornerR);
       if (dx > 0 && dy > 0) {
@@ -92,24 +91,75 @@ function createMinimalPNG(size) {
         if (dist > cornerR) alpha = 0;
         else if (dist > cornerR - 1) alpha = Math.round(255 * (cornerR - dist));
       }
-      
+
+      // Draw Shield with Checkmark mathematically
+      // Shield bounds
+      const sw = width * 0.45;
+      const sh = height * 0.55;
+      const sx = cx / sw; // -1 to 1
+      const sy = (cy + height * 0.05) / sh; // -1 to 1 (shifted down)
+
+      let insideShield = false;
+      if (sy >= -0.5 && sy <= 0.6 && Math.abs(sx) <= 0.5) {
+        // Flat slanted top
+        if (sy > -0.5 + Math.abs(sx) * 0.1) {
+          // Pointy bottom
+          if (sy < 0.2 || (sy - 0.2) < (0.4 - Math.pow(sx, 2) * 1.6)) {
+            insideShield = true;
+          }
+        }
+      }
+
+      // Draw Checkmark
+      let insideCheck = false;
+      const chkx = cx / sw;
+      const chky = cy / sh;
+
+      // Left leg of checkmark
+      const d1 = distanceToSegment(chkx, chky, -0.2, 0.05, -0.05, 0.2);
+      // Right leg of checkmark
+      const d2 = distanceToSegment(chkx, chky, -0.05, 0.2, 0.25, -0.15);
+
+      if (d1 < 0.08 || d2 < 0.08) insideCheck = true;
+
+      if (insideShield) {
+        if (insideCheck) {
+          // Knockout checkmark (background color)
+        } else {
+          // White shield
+          r = 255; g = 255; b = 255;
+        }
+      }
+
       rawData[px] = r;
       rawData[px + 1] = g;
       rawData[px + 2] = b;
       rawData[px + 3] = alpha;
     }
   }
-  
+
+  function distanceToSegment(px, py, x1, y1, x2, y2) {
+    const A = px - x1, B = py - y1, C = x2 - x1, D = y2 - y1;
+    const dot = A * C + B * D, lenSq = C * C + D * D;
+    let param = -1;
+    if (lenSq !== 0) param = dot / lenSq;
+    let xx, yy;
+    if (param < 0) { xx = x1; yy = y1; }
+    else if (param > 1) { xx = x2; yy = y2; }
+    else { xx = x1 + param * C; yy = y1 + param * D; }
+    return Math.sqrt((px - xx) * (px - xx) + (py - yy) * (py - yy));
+  }
+
   // Compress with zlib
   const zlib = require('zlib');
   const compressed = zlib.deflateSync(rawData);
-  
+
   // Build PNG file
   const chunks = [];
-  
+
   // PNG Signature
   chunks.push(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
-  
+
   // IHDR chunk
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(width, 0);
@@ -120,26 +170,26 @@ function createMinimalPNG(size) {
   ihdr[11] = 0; // filter
   ihdr[12] = 0; // interlace
   chunks.push(createChunk('IHDR', ihdr));
-  
+
   // IDAT chunk
   chunks.push(createChunk('IDAT', compressed));
-  
+
   // IEND chunk
   chunks.push(createChunk('IEND', Buffer.alloc(0)));
-  
+
   return Buffer.concat(chunks);
 }
 
 function createChunk(type, data) {
   const length = Buffer.alloc(4);
   length.writeUInt32BE(data.length, 0);
-  
+
   const typeBuffer = Buffer.from(type, 'ascii');
   const crcData = Buffer.concat([typeBuffer, data]);
-  
+
   const crc = Buffer.alloc(4);
   crc.writeUInt32BE(crc32(crcData), 0);
-  
+
   return Buffer.concat([length, typeBuffer, data, crc]);
 }
 
@@ -157,16 +207,16 @@ function crc32(buf) {
 
 function generateIcons(createCanvas) {
   const sizes = [128, 48, 16];
-  
+
   sizes.forEach(size => {
     const canvas = createCanvas(size, size);
     const ctx = canvas.getContext('2d');
-    
+
     // Background gradient
     const bgGrad = ctx.createLinearGradient(0, 0, size, size);
     bgGrad.addColorStop(0, '#7c3aed');
     bgGrad.addColorStop(1, '#3b82f6');
-    
+
     // Rounded rectangle
     const r = size * 0.2;
     ctx.beginPath();
@@ -182,7 +232,7 @@ function generateIcons(createCanvas) {
     ctx.closePath();
     ctx.fillStyle = bgGrad;
     ctx.fill();
-    
+
     // "AI" text
     const fontSize = Math.max(6, Math.round(size * 0.38));
     ctx.fillStyle = 'white';
@@ -190,18 +240,18 @@ function generateIcons(createCanvas) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('AI', size / 2, size / 2);
-    
+
     // Save
     const iconPath = path.join(__dirname, 'icons', `icon${size}.png`);
     const iconsDir = path.join(__dirname, 'icons');
     if (!fs.existsSync(iconsDir)) {
       fs.mkdirSync(iconsDir, { recursive: true });
     }
-    
+
     const buffer = canvas.toBuffer('image/png');
     fs.writeFileSync(iconPath, buffer);
     console.log(`Created icon: ${iconPath}`);
   });
-  
+
   console.log('All icons generated successfully!');
 }
