@@ -26,7 +26,7 @@ A powerful Chrome/Edge/Brave browser extension that detects **AI-generated text*
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/AI-generated-text-detection.git
+git clone https://github.com/anuragverma4895/AI-generated-text-detection.git
 ```
 
 ### Step 2: (Optional) Generate Custom Icons
