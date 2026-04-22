@@ -1,7 +1,6 @@
 // ============================================================
 // AI Text Detector — Content Script (v2)
-// Draggable panel, page scanning, text selection,
-// element picking, premium UI
+// Draggable panel, page scanning, text selection, premium UI
 // ============================================================
 
 (function () {
@@ -67,9 +66,9 @@
         <button class="ai-btn primary" id="ai-scan-page">
           <span>${ICONS.scan}</span><span>Scan Page</span>
         </button>
-        <button class="ai-btn" id="ai-pick-element">
-          <span>${ICONS.cursor}</span><span>Pick Element</span>
-        </button>
+      </div>
+      <div class="ai-pdf-note" style="padding:8px 12px;margin-top:4px;border-radius:10px;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.1);font-size:10.5px;color:#a78bfa;text-align:center;">
+        📄 To analyze a PDF, click the extension icon in the toolbar → Upload PDF tab
       </div>
 
       <div class="ai-selection-info" id="ai-selection-info">
@@ -113,21 +112,22 @@
 
       <div class="ai-divider"></div>
       <div class="ai-segment-info" id="ai-segment-info"></div>
+      
+      <button class="ai-report-btn" id="ai-generate-report" style="display:none">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        <span>Generate Report</span>
+      </button>
     </div>`;
   root.appendChild(panel);
 
   // ── State ──
   let isPanelOpen = false;
-  let isPickingElement = false;
-  let highlightOverlay = null;
-  let currentlySelected = null;
 
   // ── DOM Refs ──
   const $ = (sel) => panel.querySelector(sel);
   const els = {
     closeBtn: $("#ai-panel-close"),
     scanBtn: $("#ai-scan-page"),
-    pickBtn: $("#ai-pick-element"),
     percentage: $("#ai-percentage"),
     gaugeFill: $("#ai-gauge-fill"),
     gaugeLabel: $("#ai-gauge-label"),
@@ -141,8 +141,11 @@
     selectionPreview: $("#ai-selection-preview"),
     segmentInfo: $("#ai-segment-info"),
     resultCard: $("#ai-result-card"),
+    reportBtn: $("#ai-generate-report"),
     dragHandle: panel.querySelector("#ai-panel-drag-handle")
   };
+
+  let lastReportData = null;
 
   // ════════════════════════════════════════════
   //  DRAG LOGIC — panel is fully draggable
@@ -197,7 +200,6 @@
     isPanelOpen = false;
     panel.classList.remove("open");
     toggleBtn.style.display = "flex";
-    stopPicking();
     // Reset position for next open
     panel.style.left = "";
     panel.style.right = "20px";
@@ -258,6 +260,7 @@
     els.breakdown.style.display = "none";
     els.segmentInfo.textContent = "";
     els.resultCard.classList.remove("has-result");
+    els.reportBtn.style.display = "none";
     toggleBtn.querySelector(".toggle-badge").style.display = "none";
   }
 
@@ -268,7 +271,6 @@
 
   function setLoading(loading) {
     els.scanBtn.disabled = loading;
-    els.pickBtn.disabled = loading;
     if (loading) {
       els.scanBtn.innerHTML = `<span class="ai-spinner"></span><span>Scanning…</span>`;
     } else {
@@ -327,6 +329,17 @@
 
       updateGauge(response.probability);
       els.segmentInfo.textContent = "📝 Analyzed " + response.segments + " segment" + (response.segments !== 1 ? "s" : "");
+      
+      lastReportData = {
+        probability: response.probability,
+        segments: response.segments,
+        source: source === "full page" ? "Full Webpage" : "Selected Text on Webpage",
+        analyzedText: text,
+        pageUrl: window.location.href,
+        timestamp: Date.now()
+      };
+      els.reportBtn.style.display = "flex";
+
       setStatus("", false);
       showToast(response.probability, source);
     } catch (err) {
@@ -341,72 +354,13 @@
     analyzeText(extractPageText(), "full page");
   });
 
-  // ── Element Picker ──
-  function startPicking() {
-    isPickingElement = true;
-    els.pickBtn.classList.add("active");
-    els.pickBtn.innerHTML = `<span>✕</span><span>Cancel</span>`;
-    document.body.style.cursor = "crosshair";
-
-    highlightOverlay = document.createElement("div");
-    highlightOverlay.className = "ai-highlight-overlay";
-    document.body.appendChild(highlightOverlay);
-
-    document.addEventListener("mousemove", onPickMove, true);
-    document.addEventListener("click", onPickClick, true);
-    document.addEventListener("keydown", onPickEsc, true);
-  }
-
-  function stopPicking() {
-    isPickingElement = false;
-    els.pickBtn.classList.remove("active");
-    els.pickBtn.innerHTML = `<span>${ICONS.cursor}</span><span>Pick Element</span>`;
-    document.body.style.cursor = "";
-
-    if (highlightOverlay) { highlightOverlay.remove(); highlightOverlay = null; }
-    if (currentlySelected) { currentlySelected.classList.remove("ai-selected-element"); currentlySelected = null; }
-
-    document.removeEventListener("mousemove", onPickMove, true);
-    document.removeEventListener("click", onPickClick, true);
-    document.removeEventListener("keydown", onPickEsc, true);
-  }
-
-  function onPickMove(e) {
-    if (!isPickingElement || !highlightOverlay) return;
-    const t = e.target;
-    if (t.closest("#ai-detector-root")) return;
-    const r = t.getBoundingClientRect();
-    Object.assign(highlightOverlay.style, {
-      left: (r.left + window.scrollX) + "px",
-      top: (r.top + window.scrollY) + "px",
-      width: r.width + "px",
-      height: r.height + "px"
-    });
-  }
-
-  function onPickClick(e) {
-    if (!isPickingElement) return;
-    if (e.target.closest("#ai-detector-root")) return;
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (currentlySelected) currentlySelected.classList.remove("ai-selected-element");
-    currentlySelected = e.target;
-    e.target.classList.add("ai-selected-element");
-
-    const text = (e.target.innerText || e.target.textContent || "").trim();
-    els.selectionInfo.classList.add("visible");
-    els.selectionPreview.textContent = text.substring(0, 100) + (text.length > 100 ? "…" : "");
-
-    stopPicking();
-    analyzeText(text, "selected element");
-  }
-
-  function onPickEsc(e) { if (e.key === "Escape") stopPicking(); }
-
-  els.pickBtn.addEventListener("click", () => {
-    isPickingElement ? stopPicking() : startPicking();
+  els.reportBtn.addEventListener("click", () => {
+    if (lastReportData && typeof downloadAndOpenReport === "function") {
+      downloadAndOpenReport(lastReportData);
+    }
   });
+
+  // (Pick Element feature removed — PDF upload available via popup)
 
   // ── Text Selection Handler ──
   let selTimeout = null;
