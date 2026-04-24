@@ -5,7 +5,7 @@
 
 const HF_API_URL = "https://dipaghosh56-electra-ai-vs-human.hf.space/api/predict";
 // Token encoded to comply with GitHub Push Protection (decoded at runtime)
-const HF_TOKEN = String.fromCharCode(104,102,95,65,110,78,97,97,65,72,120,97,67,119,103,118,76,102,86,82,72,78,84,109,86,100,111,73,107,108,66,97,109,112,73,85,120);
+const HF_TOKEN = String.fromCharCode(104, 102, 95, 65, 110, 78, 97, 97, 65, 72, 120, 97, 67, 119, 103, 118, 76, 102, 86, 82, 72, 78, 84, 109, 86, 100, 111, 73, 107, 108, 66, 97, 109, 112, 73, 85, 120);
 const TRANSLATE_API = "https://translate.googleapis.com/translate_a/single";
 
 // ── Context Menu Setup ──
@@ -118,21 +118,24 @@ async function handleFullAnalysis(rawText) {
     // 3. Segment text into chunks (~1500 chars each to stay within 512 tokens)
     const segments = segmentText(text, 1500);
 
-    // 4. Predict each segment
+    // 4. Predict each segment and store per-segment details
     const results = [];
+    const segmentDetails = [];
     for (const segment of segments) {
       if (segment.trim().length < 10) continue;
       try {
         const { logits } = await handlePredict(segment);
         const prob = softmax(logits);
         results.push({ prob, length: segment.length });
+        segmentDetails.push({ text: segment, probability: prob * 100 });
       } catch (e) {
         console.warn("[AI Detector] Segment prediction failed:", e);
+        segmentDetails.push({ text: segment, probability: -1 }); // -1 = failed
       }
     }
 
     if (results.length === 0) {
-      return { probability: 0, label: "Analysis failed", segments: 0 };
+      return { probability: 0, label: "Analysis failed", segments: 0, segmentDetails: [] };
     }
 
     // 5. Weighted average by text length
@@ -146,7 +149,23 @@ async function handleFullAnalysis(rawText) {
     else if (probability > 30) label = "Mixed / Uncertain";
     else label = "Likely Human-Written";
 
-    return { probability, label, segments: results.length };
+    // 6. Build sentence-level analysis for highlighting
+    const sentenceDetails = [];
+    for (const seg of segmentDetails) {
+      if (seg.probability < 0) continue; // skip failed segments
+      // Split each segment into sentences
+      const sentences = seg.text.split(/(?<=[.!?])\s+/);
+      for (const sentence of sentences) {
+        if (sentence.trim().length > 0) {
+          sentenceDetails.push({
+            text: sentence.trim(),
+            probability: seg.probability // inherit segment's probability
+          });
+        }
+      }
+    }
+
+    return { probability, label, segments: results.length, segmentDetails, sentenceDetails };
   } catch (err) {
     console.error("[AI Detector] Full analysis error:", err);
     return { probability: 0, label: "Error: " + err.message, segments: 0, error: true };
@@ -186,7 +205,7 @@ async function setPremiumToolbarIcon() {
     grad.addColorStop(0, "#7c3aed");
     grad.addColorStop(1, "#3b82f6");
     ctx.fillStyle = grad;
-    
+
     // Draw smooth rounded rect (radius 24)
     ctx.beginPath();
     ctx.roundRect(0, 0, 128, 128, 28);
@@ -196,7 +215,7 @@ async function setPremiumToolbarIcon() {
     ctx.save();
     ctx.translate(24, 24); // center an 80x80 shield in 128x128
     ctx.scale(80 / 24, 80 / 24); // scale up the 24x24 SVG path
-    
+
     const svgPath = new Path2D("M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z");
     ctx.fillStyle = "white";
     ctx.fill(svgPath);

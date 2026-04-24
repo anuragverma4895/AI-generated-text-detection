@@ -57,7 +57,10 @@
       <div class="header-left">
         <div class="drag-dots"><span></span><span></span><span></span></div>
         <div class="header-icon">${ICONS.shield}</div>
-        <h2>AI Detector</h2>
+        <div class="header-brand-text">
+          <div class="header-title">AI Text Detector</div>
+          <div class="header-subtitle">ELECTRA-POWERED ANALYSIS</div>
+        </div>
       </div>
       <button class="close-btn" id="ai-panel-close">✕</button>
     </div>
@@ -67,8 +70,11 @@
           <span>${ICONS.scan}</span><span>Scan Page</span>
         </button>
       </div>
-      <div class="ai-pdf-note" style="padding:8px 12px;margin-top:4px;border-radius:10px;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.1);font-size:10.5px;color:#a78bfa;text-align:center;">
-        📄 To analyze a PDF, click the extension icon in the toolbar → Upload PDF tab
+      <div class="ai-pdf-note">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12" style="flex-shrink:0;color:#a78bfa;">
+          <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+        </svg>
+        <span>To analyze a PDF, click the extension icon in the toolbar → Upload PDF tab</span>
       </div>
 
       <div class="ai-selection-info" id="ai-selection-info">
@@ -77,46 +83,55 @@
 
       <div class="ai-result-card" id="ai-result-card">
         <div class="ai-result-label">Detection Result</div>
-        <div class="ai-gauge-container">
-          <div class="ai-gauge-ring">
-            <svg viewBox="0 0 130 130">
-              <circle class="gauge-bg" cx="65" cy="65" r="60"/>
-              <circle class="gauge-fill" id="ai-gauge-fill" cx="65" cy="65" r="60"/>
-            </svg>
-            <div class="ai-gauge-value">
-              <span class="percentage" id="ai-percentage">—</span>
-              <span class="unit">%</span>
+        <div class="ai-result-main">
+          <div class="ai-gauge-container">
+            <div class="ai-gauge-ring">
+              <svg viewBox="0 0 130 130">
+                <circle class="gauge-bg" cx="65" cy="65" r="60"/>
+                <circle class="gauge-fill" id="ai-gauge-fill" cx="65" cy="65" r="60"/>
+              </svg>
+              <div class="ai-gauge-value">
+                <span class="percentage" id="ai-percentage">—</span>
+                <span class="unit">%</span>
+              </div>
             </div>
           </div>
-          <div class="ai-gauge-label" id="ai-gauge-label">Ready to scan</div>
+          <div class="ai-result-info">
+            <div class="ai-gauge-label" id="ai-gauge-label">Ready to scan</div>
+            <div class="ai-segment-info" id="ai-segment-info"></div>
+          </div>
         </div>
 
         <div class="ai-status" id="ai-status"></div>
 
         <div class="ai-breakdown" id="ai-breakdown" style="display:none">
-          <div class="ai-breakdown-title">${ICONS.chart} Confidence Breakdown</div>
           <div class="ai-bar-group">
             <div class="ai-bar-item">
-              <span class="bar-label">${ICONS.ai} AI</span>
+              <span class="bar-icon">${ICONS.ai}</span>
+              <span class="bar-label">AI-Generated</span>
               <div class="ai-bar-track"><div class="ai-bar-fill ai-fill" id="ai-bar-ai"></div></div>
               <span class="bar-value" id="ai-bar-ai-val">0%</span>
             </div>
             <div class="ai-bar-item">
-              <span class="bar-label">${ICONS.human} Human</span>
+              <span class="bar-icon">${ICONS.human}</span>
+              <span class="bar-label">Human-Written</span>
               <div class="ai-bar-track"><div class="ai-bar-fill human-fill" id="ai-bar-human"></div></div>
               <span class="bar-value" id="ai-bar-human-val">0%</span>
             </div>
           </div>
         </div>
       </div>
-
-      <div class="ai-divider"></div>
-      <div class="ai-segment-info" id="ai-segment-info"></div>
       
       <button class="ai-report-btn" id="ai-generate-report" style="display:none">
         <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
         <span>Generate Report</span>
       </button>
+
+      <div class="ai-panel-footer">
+        <span>Powered by ELECTRA Model</span>
+        <span class="footer-dot">•</span>
+        <span>v1.0.0</span>
+      </div>
     </div>`;
   root.appendChild(panel);
 
@@ -335,6 +350,8 @@
         segments: response.segments,
         source: source === "full page" ? "Full Webpage" : "Selected Text on Webpage",
         analyzedText: text,
+        sentenceDetails: response.sentenceDetails || [],
+        segmentDetails: response.segmentDetails || [],
         pageUrl: window.location.href,
         timestamp: Date.now()
       };

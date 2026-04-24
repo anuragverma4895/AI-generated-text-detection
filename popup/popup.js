@@ -378,6 +378,8 @@ document.addEventListener("DOMContentLoaded", () => {
       segments: data.segments,
       source: currentTab === "pdf" ? "Uploaded PDF (" + pdfFileName.textContent + ")" : "Manual Input",
       analyzedText: text,
+      sentenceDetails: data.sentenceDetails || [],
+      segmentDetails: data.segmentDetails || [],
       timestamp: Date.now()
     };
 

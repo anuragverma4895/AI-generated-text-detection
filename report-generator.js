@@ -1,6 +1,6 @@
 // ============================================================
-// AI Text Detector — Report Generator
-// Creates beautiful HTML reports for AI detection results
+// AI Text Detector — Report Generator (v2)
+// Creates beautiful HTML reports with sentence-level AI highlighting
 // ============================================================
 
 function generateReportHTML(data) {
@@ -9,6 +9,7 @@ function generateReportHTML(data) {
     segments,
     source,
     analyzedText,
+    sentenceDetails,
     pageUrl,
     timestamp
   } = data;
@@ -48,13 +49,19 @@ function generateReportHTML(data) {
     hour: "2-digit", minute: "2-digit", second: "2-digit"
   });
 
-  // Truncate text preview for report
-  const textPreview = (analyzedText || "").substring(0, 800);
   const textLength = (analyzedText || "").length;
 
   // SVG gauge for report
   const circumference = 2 * Math.PI * 70;
   const offset = circumference - (prob / 100) * circumference;
+
+  // ── Build highlighted text HTML ──
+  const highlightedTextHTML = buildHighlightedText(analyzedText, sentenceDetails);
+
+  // ── Count AI vs Human sentences ──
+  const aiSentenceCount = (sentenceDetails || []).filter(s => s.probability > 50).length;
+  const humanSentenceCount = (sentenceDetails || []).filter(s => s.probability <= 50).length;
+  const totalSentences = aiSentenceCount + humanSentenceCount;
 
   return `<div class="ai-report-wrapper" style="font-family: 'Segoe UI', -apple-system, sans-serif; background: #050810; color: #e2e8f0; width: 800px; padding: 0;">
   <style>
@@ -215,13 +222,13 @@ function generateReportHTML(data) {
     /* Stats Grid */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
       margin-bottom: 24px;
     }
 
     .stat-card {
-      padding: 20px;
+      padding: 18px 12px;
       background: rgba(255,255,255,0.02);
       border: 1px solid rgba(255,255,255,0.05);
       border-radius: 16px;
@@ -229,14 +236,14 @@ function generateReportHTML(data) {
     }
 
     .stat-value {
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 800;
       letter-spacing: -1px;
       margin-bottom: 4px;
     }
 
     .stat-label {
-      font-size: 11px;
+      font-size: 10px;
       color: #64748b;
       font-weight: 600;
       text-transform: uppercase;
@@ -310,8 +317,8 @@ function generateReportHTML(data) {
       font-variant-numeric: tabular-nums;
     }
 
-    /* Text Preview */
-    .text-preview-section {
+    /* ── Highlighted Text Section ── */
+    .highlighted-text-section {
       padding: 24px;
       background: rgba(255,255,255,0.015);
       border: 1px solid rgba(255,255,255,0.05);
@@ -319,19 +326,95 @@ function generateReportHTML(data) {
       margin-bottom: 24px;
     }
 
-    .text-preview-body {
-      padding: 16px;
-      background: rgba(0,0,0,0.3);
+    .highlight-legend {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.25);
       border-radius: 12px;
-      font-size: 12.5px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
       color: #94a3b8;
-      line-height: 1.7;
-      white-space: pre-wrap;
+      font-weight: 500;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .legend-swatch.ai-high { background: rgba(239, 68, 68, 0.35); border: 1px solid rgba(239, 68, 68, 0.5); }
+    .legend-swatch.ai-medium { background: rgba(245, 158, 11, 0.30); border: 1px solid rgba(245, 158, 11, 0.45); }
+    .legend-swatch.ai-low { background: rgba(234, 179, 8, 0.25); border: 1px solid rgba(234, 179, 8, 0.4); }
+    .legend-swatch.human { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.25); }
+
+    .highlighted-text-body {
+      padding: 20px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 14px;
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.9;
       word-break: break-word;
-      max-height: 300px;
-      overflow-y: auto;
       border: 1px solid rgba(255,255,255,0.03);
     }
+
+    /* Sentence highlight styles */
+    .sentence-ai-high {
+      background: rgba(239, 68, 68, 0.18);
+      border-bottom: 2px solid rgba(239, 68, 68, 0.6);
+      padding: 2px 4px;
+      border-radius: 3px;
+      color: #fca5a5;
+    }
+
+    .sentence-ai-medium {
+      background: rgba(245, 158, 11, 0.15);
+      border-bottom: 2px solid rgba(245, 158, 11, 0.5);
+      padding: 2px 4px;
+      border-radius: 3px;
+      color: #fcd34d;
+    }
+
+    .sentence-ai-low {
+      background: rgba(234, 179, 8, 0.12);
+      border-bottom: 2px solid rgba(234, 179, 8, 0.4);
+      padding: 2px 4px;
+      border-radius: 3px;
+      color: #fde68a;
+    }
+
+    .sentence-human {
+      padding: 2px 4px;
+      color: #94a3b8;
+    }
+
+    /* Sentence probability tag */
+    .sentence-prob-tag {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: 3px;
+      vertical-align: super;
+      opacity: 0.85;
+      letter-spacing: 0.3px;
+    }
+
+    .tag-high { background: rgba(239,68,68,0.25); color: #fca5a5; }
+    .tag-medium { background: rgba(245,158,11,0.25); color: #fcd34d; }
+    .tag-low { background: rgba(234,179,8,0.2); color: #fde68a; }
+    .tag-human { background: rgba(34,197,94,0.15); color: #86efac; }
 
     /* Footer */
     .report-footer {
@@ -364,11 +447,15 @@ function generateReportHTML(data) {
     @media print {
       body { background: white; color: #1a1a1a; }
       .verdict-card { border: 2px solid ${verdictColor}; }
-      .breakdown-section, .text-preview-section, .stat-card {
+      .breakdown-section, .highlighted-text-section, .stat-card {
         border: 1px solid #ddd;
         background: #f9f9f9;
       }
-      .text-preview-body { background: #f1f1f1; color: #333; }
+      .highlighted-text-body { background: #f1f1f1; color: #333; }
+      .sentence-ai-high { background: rgba(239,68,68,0.15); color: #b91c1c; border-color: #ef4444; }
+      .sentence-ai-medium { background: rgba(245,158,11,0.15); color: #b45309; border-color: #f59e0b; }
+      .sentence-ai-low { background: rgba(234,179,8,0.12); color: #a16207; border-color: #eab308; }
+      .sentence-human { color: #333; }
       .report-footer { color: #999; }
     }
   </style>
@@ -431,7 +518,11 @@ function generateReportHTML(data) {
       </div>
       <div class="stat-card">
         <div class="stat-value" style="color:#a78bfa">${segments || 1}</div>
-        <div class="stat-label">Segments Analyzed</div>
+        <div class="stat-label">Segments</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color:#ef4444">${aiSentenceCount}</div>
+        <div class="stat-label">AI Sentences</div>
       </div>
     </div>
 
@@ -467,6 +558,10 @@ function generateReportHTML(data) {
           <td style="padding:10px 0;font-weight:600;">${textLength.toLocaleString()} characters</td>
         </tr>
         <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+          <td style="padding:10px 0;color:#64748b;">Total Sentences</td>
+          <td style="padding:10px 0;font-weight:600;">${totalSentences} (${aiSentenceCount} AI-flagged, ${humanSentenceCount} human)</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
           <td style="padding:10px 0;color:#64748b;">Model Used</td>
           <td style="padding:10px 0;font-weight:600;">ELECTRA (google/electra-base-discriminator)</td>
         </tr>
@@ -477,10 +572,16 @@ function generateReportHTML(data) {
       </table>
     </div>
 
-    <!-- Text Preview -->
-    <div class="text-preview-section">
-      <div class="section-title">📝 Analyzed Text Preview</div>
-      <div class="text-preview-body">${escapeHtml(textPreview)}${textLength > 800 ? '\n\n... [truncated — ' + (textLength - 800).toLocaleString() + ' more characters]' : ''}</div>
+    <!-- Highlighted Full Text -->
+    <div class="highlighted-text-section">
+      <div class="section-title">📝 Full Text Analysis — Sentence-Level Highlighting</div>
+      <div class="highlight-legend">
+        <div class="legend-item"><div class="legend-swatch ai-high"></div>AI Likely (>75%)</div>
+        <div class="legend-item"><div class="legend-swatch ai-medium"></div>AI Possible (50-75%)</div>
+        <div class="legend-item"><div class="legend-swatch ai-low"></div>Uncertain (30-50%)</div>
+        <div class="legend-item"><div class="legend-swatch human"></div>Human (<30%)</div>
+      </div>
+      <div class="highlighted-text-body">${highlightedTextHTML}</div>
     </div>
 
     <!-- Disclaimer -->
@@ -498,6 +599,71 @@ function generateReportHTML(data) {
 
   </div>
 </div>`;
+}
+
+// ── Build highlighted text from sentence-level analysis ──
+function buildHighlightedText(analyzedText, sentenceDetails) {
+  if (!sentenceDetails || sentenceDetails.length === 0) {
+    // Fallback: no sentence data available, show plain text
+    return escapeHtml(analyzedText || "");
+  }
+
+  let html = "";
+  let remainingText = analyzedText || "";
+
+  for (let i = 0; i < sentenceDetails.length; i++) {
+    const sentence = sentenceDetails[i];
+    const sentenceText = sentence.text;
+    const prob = sentence.probability;
+
+    // Find this sentence in the remaining text
+    const idx = remainingText.indexOf(sentenceText);
+
+    if (idx > 0) {
+      // There's text before this sentence (whitespace, newlines, etc.)
+      const beforeText = remainingText.substring(0, idx);
+      html += escapeHtml(beforeText);
+    }
+
+    if (idx >= 0) {
+      // Found the sentence — highlight it
+      const cssClass = getSentenceClass(prob);
+      const tagClass = getTagClass(prob);
+      const probLabel = prob.toFixed(0) + "%";
+
+      html += `<span class="${cssClass}">${escapeHtml(sentenceText)}<span class="sentence-prob-tag ${tagClass}">${probLabel}</span></span>`;
+
+      remainingText = remainingText.substring(idx + sentenceText.length);
+    } else {
+      // Sentence not found in remaining text — just append as highlighted
+      const cssClass = getSentenceClass(prob);
+      const tagClass = getTagClass(prob);
+      const probLabel = prob.toFixed(0) + "%";
+
+      html += `<span class="${cssClass}">${escapeHtml(sentenceText)}<span class="sentence-prob-tag ${tagClass}">${probLabel}</span></span> `;
+    }
+  }
+
+  // Append any leftover text that wasn't matched
+  if (remainingText.length > 0) {
+    html += escapeHtml(remainingText);
+  }
+
+  return html;
+}
+
+function getSentenceClass(prob) {
+  if (prob > 75) return "sentence-ai-high";
+  if (prob > 50) return "sentence-ai-medium";
+  if (prob > 30) return "sentence-ai-low";
+  return "sentence-human";
+}
+
+function getTagClass(prob) {
+  if (prob > 75) return "tag-high";
+  if (prob > 50) return "tag-medium";
+  if (prob > 30) return "tag-low";
+  return "tag-human";
 }
 
 function escapeHtml(text) {
@@ -532,7 +698,8 @@ function downloadAndOpenReport(reportData) {
     filename: filename,
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true, backgroundColor: '#050810' },
-    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
   };
 
   // Generate and download PDF
